@@ -5,16 +5,20 @@
 
 use bevy::prelude::*;
 
-mod animation;
+mod explosions;
 pub mod level;
 mod movement;
 pub mod player;
+mod shooting;
+mod shot;
 
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins((
-        animation::plugin,
         level::plugin,
         movement::plugin,
         player::plugin,
+        shot::plugin,
+        shooting::plugin,
+        explosions::plugin,
     ));
 }
