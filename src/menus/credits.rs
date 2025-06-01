@@ -34,9 +34,7 @@ fn spawn_credits_menu(mut commands: Commands) {
 }
 
 fn created_by() -> impl Bundle {
-    grid(vec![
-        ["Sam Baskin", "Development, Art, Music"],
-    ])
+    grid(vec![["Sam Baskin", "Development, Art, Music"]])
 }
 
 fn assets() -> impl Bundle {
