@@ -11,6 +11,8 @@ use crate::{
     demo::movement::{MovementController, ScreenWrap},
 };
 
+use super::shooting::ShootingController;
+
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<Player>();
 
@@ -24,10 +26,24 @@ pub(super) fn plugin(app: &mut App) {
             .in_set(AppSystems::RecordInput)
             .in_set(PausableSystems),
     );
+
+    // Record spacebar as shooting input.
+    app.add_systems(
+        Update,
+        record_player_shooting_input
+            .in_set(AppSystems::RecordInput)
+            .in_set(PausableSystems),
+    );
 }
 
 /// The player character.
 pub fn player(max_speed: f32, player_assets: &PlayerAssets) -> impl Bundle {
+    let mut initial_transform = Transform::from_scale(Vec2::splat(2.0).extend(1.0));
+    initial_transform.translation = Vec3 {
+        x: 0.0,
+        y: -200.0,
+        z: 0.0,
+    };
     (
         Name::new("Player"),
         Player,
@@ -35,11 +51,12 @@ pub fn player(max_speed: f32, player_assets: &PlayerAssets) -> impl Bundle {
             image: player_assets.cannon.clone(),
             ..default()
         },
-        Transform::from_scale(Vec2::splat(2.0).extend(1.0)),
+        initial_transform,
         MovementController {
             max_speed,
             ..default()
         },
+        ShootingController::default(),
         ScreenWrap,
     )
 }
@@ -50,7 +67,7 @@ struct Player;
 
 fn record_player_directional_input(
     input: Res<ButtonInput<KeyCode>>,
-    mut controller_query: Query<&mut MovementController, With<Player>>,
+    mut controller_query: Query<(&mut MovementController, &mut ShootingController), With<Player>>,
 ) {
     // Collect directional input.
     let mut intent = Vec2::ZERO;
@@ -72,8 +89,22 @@ fn record_player_directional_input(
     let intent = intent.normalize_or_zero();
 
     // Apply movement intent to controllers.
-    for mut controller in &mut controller_query {
-        controller.intent = intent;
+    for (mut movement_controller, mut shooting_controller) in &mut controller_query {
+        movement_controller.intent = Vec2 {
+            x: intent.x,
+            y: 0.0,
+        };
+        shooting_controller.target_offset += Vec2::new(0.0, intent.y);
+        shooting_controller.intent_to_fire = input.just_pressed(KeyCode::Space);
+    }
+}
+
+fn record_player_shooting_input(
+    input: Res<ButtonInput<KeyCode>>,
+    mut shooting_query: Query<&mut ShootingController, With<Player>>,
+) {
+    for mut controller in &mut shooting_query {
+        controller.intent_to_fire = input.just_pressed(KeyCode::Space);
     }
 }
 
