@@ -10,6 +10,7 @@ mod explosions;
 pub mod level;
 mod movement;
 pub mod player;
+mod reticle;
 mod shooting;
 mod shot;
 
@@ -22,5 +23,6 @@ pub(super) fn plugin(app: &mut App) {
         shooting::plugin,
         explosions::plugin,
         enemies::plugin,
+        reticle::plugin,
     ));
 }

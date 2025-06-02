@@ -30,7 +30,6 @@ struct Shot {
     pub target: Option<Vec2>,
 }
 
-// todo:: pass initial transfrom and use to spawn shot
 pub fn shot(
     speed: f32,
     shot_assets: &ShotAssets,
