@@ -104,13 +104,14 @@ fn shot_end_of_life(
     for (shot, transform, entity) in query.iter() {
         if shot.target.is_none() {
             // Shot has reached its target
-            commands.entity(entity).despawn();
             commands.spawn(explosion(
-                true,
                 transform.translation.truncate(),
+                16.0,
+                1.0,
                 &explosion_assets,
                 &mut texture_atlas_layouts,
             ));
+            commands.entity(entity).despawn();
         }
     }
 }
