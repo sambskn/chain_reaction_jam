@@ -9,6 +9,8 @@ use crate::{
     screens::Screen,
 };
 
+use super::enemies::EnemyController;
+
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<LevelAssets>();
     app.load_resource::<LevelAssets>();
@@ -43,6 +45,7 @@ pub fn spawn_level(
         StateScoped(Screen::Gameplay),
         children![
             player(400.0, &player_assets),
+            EnemyController::default(),
             (
                 Name::new("Gameplay Music"),
                 music(level_assets.music.clone())

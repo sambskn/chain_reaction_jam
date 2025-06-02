@@ -34,12 +34,11 @@ fn spawn_credits_menu(mut commands: Commands) {
 }
 
 fn created_by() -> impl Bundle {
-    grid(vec![["Sam Baskin", "Development, Art, Music"]])
+    grid(vec![["Sam Baskin", "game stuff"]])
 }
 
 fn assets() -> impl Bundle {
     grid(vec![
-        ["Ducky sprite", "CC0 by Caz Creates Games"],
         [
             "Bad Dudes / Dragon Ninja (MSX) font",
             "thealmightyguru's Video game font collection",

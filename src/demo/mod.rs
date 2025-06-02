@@ -5,6 +5,7 @@
 
 use bevy::prelude::*;
 
+mod enemies;
 mod explosions;
 pub mod level;
 mod movement;
@@ -20,5 +21,6 @@ pub(super) fn plugin(app: &mut App) {
         shot::plugin,
         shooting::plugin,
         explosions::plugin,
+        enemies::plugin,
     ));
 }
