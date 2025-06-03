@@ -10,6 +10,7 @@ use crate::{
 };
 
 use super::enemies::EnemyController;
+use super::reticle::{ReticleAssets, reticle};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<LevelAssets>();
@@ -37,6 +38,7 @@ pub fn spawn_level(
     mut commands: Commands,
     level_assets: Res<LevelAssets>,
     player_assets: Res<PlayerAssets>,
+    reticle_assets: Res<ReticleAssets>,
 ) {
     commands.spawn((
         Name::new("Level"),
@@ -46,6 +48,7 @@ pub fn spawn_level(
         children![
             player(400.0, &player_assets),
             EnemyController::default(),
+            reticle(&reticle_assets),
             (
                 Name::new("Gameplay Music"),
                 music(level_assets.music.clone())
