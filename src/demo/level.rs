@@ -48,7 +48,7 @@ pub fn spawn_level(
         children![
             player(400.0, &player_assets),
             EnemyController::default(),
-            reticle(&reticle_assets),
+            (reticle(&reticle_assets), Name::new("Reticle"),),
             (
                 Name::new("Gameplay Music"),
                 music(level_assets.music.clone())

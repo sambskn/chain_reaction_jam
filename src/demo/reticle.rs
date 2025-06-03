@@ -6,14 +6,14 @@ use bevy::{
 use super::shooting::ShootingController;
 use crate::{AppSystems, PausableSystems, asset_tracking::LoadResource};
 
+const RETICLE_Z: f32 = 10.0;
+
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<Reticle>();
 
     app.register_type::<ReticleAssets>();
     app.load_resource::<ReticleAssets>();
 
-    // TODO: add systems for:
-    // - update reticle visual over time
     app.add_systems(
         Update,
         (update_reticle_visual_wave_val_timer, update_reticle_target)
@@ -25,7 +25,8 @@ pub(super) fn plugin(app: &mut App) {
 
     app.add_systems(
         Update,
-        update_reticle_position
+        (update_reticle_position, update_reticle_visual)
+            .chain()
             .run_if(resource_exists::<ReticleAssets>)
             .in_set(AppSystems::Update)
             .in_set(PausableSystems),
@@ -38,14 +39,16 @@ pub fn reticle(reticle_assets: &ReticleAssets) -> impl Bundle {
             image: reticle_assets.texture.clone(),
             ..default()
         },
-        Transform::default().with_scale(Vec3::splat(2.0)),
+        Transform::default()
+            .with_scale(Vec3::splat(2.0))
+            .with_translation(Vec2::ZERO.extend(RETICLE_Z)),
         Reticle::default(),
     )
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Reflect)]
 #[reflect(Component)]
-struct Reticle {
+pub struct Reticle {
     pub move_speed: f32,
     pub visual_speed: f32,
     pub visual_wave_val: f32,
@@ -56,7 +59,7 @@ impl Default for Reticle {
     fn default() -> Self {
         Self {
             move_speed: 450.0,
-            visual_speed: 5.0,
+            visual_speed: 8.0,
             visual_wave_val: 0.5,
             target: None,
         }
@@ -75,7 +78,7 @@ impl FromWorld for ReticleAssets {
         let assets = world.resource::<AssetServer>();
         Self {
             texture: assets.load_with_settings(
-                "images/reticle.png",
+                "images/reticle2.png", //imo better than reticle.png, gonna leave both in assets for now
                 |settings: &mut ImageLoaderSettings| {
                     // Use `nearest` image sampling to preserve pixel art style.
                     settings.sampler = ImageSampler::nearest();
@@ -87,10 +90,7 @@ impl FromWorld for ReticleAssets {
 
 fn update_reticle_visual_wave_val_timer(mut reticle_query: Query<&mut Reticle>, time: Res<Time>) {
     for mut reticle in reticle_query.iter_mut() {
-        reticle.visual_wave_val += time.delta_secs() * reticle.visual_speed;
-        while reticle.visual_wave_val > 1.0 {
-            reticle.visual_wave_val -= 1.0;
-        }
+        reticle.visual_wave_val = (time.elapsed_secs() * reticle.visual_speed).sin() * 0.5 + 0.5;
     }
 }
 
@@ -114,8 +114,21 @@ fn update_reticle_position(mut reticle_query: Query<(&mut Transform, &Reticle)>,
             if distance > 0.0 {
                 let step = time.delta_secs() * reticle.move_speed;
                 let step = step.min(distance);
-                transform.translation += (direction.normalize() * step).extend(1.0);
+                transform.translation += (direction.normalize() * step).extend(0.0);
             }
         }
+    }
+}
+
+fn update_reticle_visual(mut reticle_query: Query<(&Reticle, &mut Sprite)>) {
+    for (reticle, mut sprite) in reticle_query.iter_mut() {
+        // adjust hue of sprite across color spectrum based on visual_wave_val (between 0.0 and 1.0)
+        // (sprite is grayscale)
+        sprite.color = Color::Hsla(Hsla {
+            hue: reticle.visual_wave_val * 255.0,
+            saturation: 0.9,
+            lightness: 0.5,
+            alpha: 1.0,
+        });
     }
 }

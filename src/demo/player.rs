@@ -65,6 +65,8 @@ pub fn player(max_speed: f32, player_assets: &PlayerAssets) -> impl Bundle {
 #[reflect(Component)]
 struct Player;
 
+const PLAYER_RETICLE_Y_SPEED: f32 = 8.0;
+
 fn record_player_directional_input(
     input: Res<ButtonInput<KeyCode>>,
     mut controller_query: Query<(&mut MovementController, &mut ShootingController), With<Player>>,
@@ -94,7 +96,7 @@ fn record_player_directional_input(
             x: intent.x,
             y: 0.0,
         };
-        shooting_controller.target_offset += Vec2::new(0.0, intent.y);
+        shooting_controller.target_offset += Vec2::new(0.0, intent.y * PLAYER_RETICLE_Y_SPEED);
         shooting_controller.intent_to_fire = input.just_pressed(KeyCode::Space);
     }
 }
