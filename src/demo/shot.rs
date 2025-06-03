@@ -28,6 +28,7 @@ pub(super) fn plugin(app: &mut App) {
 struct Shot {
     pub speed: f32,
     pub target: Option<Vec2>,
+    pub initial_location: Vec2,
 }
 
 pub fn shot(
@@ -38,7 +39,11 @@ pub fn shot(
 ) -> impl Bundle {
     (
         Name::new("Shot"),
-        Shot { speed, target },
+        Shot {
+            speed,
+            target,
+            initial_location,
+        },
         Transform::from_translation(initial_location.extend(0.0)),
         Sprite {
             image: shot_assets.texture.clone(),
@@ -89,6 +94,17 @@ fn update_shot_position(mut query: Query<(&mut Transform, &mut Shot)>, time: Res
                 };
                 transform.translation.x += direction.x * shot.speed * time.delta_secs();
                 transform.translation.y += direction.y * shot.speed * time.delta_secs();
+                // modify scale based on distance from initial location
+                let initial_target_distance = shot.initial_location.distance(target);
+                let percent_travelled =
+                    (initial_target_distance - distance) / initial_target_distance;
+                // use a quadratic function to scale the shot, with a desired starting scale and ending scale
+                // TODO: maybe cubic would look better with the peak scale happening a little after the initial location
+                let initial_scale = 2.0;
+                let final_scale = 0.5;
+                let scale_factor =
+                    initial_scale + (final_scale - initial_scale) * percent_travelled.powi(2);
+                transform.scale = Vec3::splat(scale_factor);
             }
         }
     }
