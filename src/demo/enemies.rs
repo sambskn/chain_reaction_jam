@@ -108,7 +108,6 @@ fn update_enemy_movement_intent(
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct EnemyController {
-    ///
     pub max_num_enemies: usize,
 }
 
