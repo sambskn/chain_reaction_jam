@@ -20,7 +20,6 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct ShootingController {
-    ///
     pub intent_to_fire: bool,
     pub last_shot_time: f32,
     pub reload_time: f32,

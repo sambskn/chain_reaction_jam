@@ -6,9 +6,7 @@ use bevy::{
 };
 
 use crate::{
-    AppSystems, PausableSystems,
-    asset_tracking::LoadResource,
-    demo::movement::{MovementController, ScreenWrap},
+    AppSystems, PausableSystems, asset_tracking::LoadResource, demo::movement::MovementController,
 };
 
 use super::shooting::ShootingController;
@@ -57,7 +55,6 @@ pub fn player(max_speed: f32, player_assets: &PlayerAssets) -> impl Bundle {
             ..default()
         },
         ShootingController::default(),
-        ScreenWrap,
     )
 }
 

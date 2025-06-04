@@ -13,17 +13,16 @@
 //! purposes. If you want to move the player in a smoother way,
 //! consider using a [fixed timestep](https://github.com/bevyengine/bevy/blob/main/examples/movement/physics_in_fixed_timestep.rs).
 
-use bevy::{prelude::*, window::PrimaryWindow};
+use bevy::prelude::*;
 
 use crate::{AppSystems, PausableSystems};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<MovementController>();
-    app.register_type::<ScreenWrap>();
 
     app.add_systems(
         Update,
-        (apply_movement, apply_screen_wrap)
+        (apply_movement)
             .chain()
             .in_set(AppSystems::Update)
             .in_set(PausableSystems),
@@ -54,6 +53,8 @@ impl Default for MovementController {
     }
 }
 
+const MAX_X: f32 = 350.0;
+
 fn apply_movement(
     time: Res<Time>,
     mut movement_query: Query<(&MovementController, &mut Transform)>,
@@ -61,22 +62,6 @@ fn apply_movement(
     for (controller, mut transform) in &mut movement_query {
         let velocity = controller.max_speed * controller.intent;
         transform.translation += velocity.extend(0.0) * time.delta_secs();
-    }
-}
-
-#[derive(Component, Reflect)]
-#[reflect(Component)]
-pub struct ScreenWrap;
-
-fn apply_screen_wrap(
-    window: Single<&Window, With<PrimaryWindow>>,
-    mut wrap_query: Query<&mut Transform, With<ScreenWrap>>,
-) {
-    let size = window.size() + 256.0;
-    let half_size = size / 2.0;
-    for mut transform in &mut wrap_query {
-        let position = transform.translation.xy();
-        let wrapped = (position + half_size).rem_euclid(size) - half_size;
-        transform.translation = wrapped.extend(transform.translation.z);
+        transform.translation.x = transform.translation.x.clamp(-MAX_X, MAX_X);
     }
 }

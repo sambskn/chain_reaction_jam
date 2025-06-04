@@ -4,7 +4,7 @@ use bevy::{
 };
 
 use super::explosions::{ExplosionAssets, explosion};
-use crate::{AppSystems, PausableSystems, asset_tracking::LoadResource};
+use crate::{AppSystems, PausableSystems, asset_tracking::LoadResource, audio::sound_effect};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<Shot>();
@@ -49,6 +49,7 @@ pub fn shot(
             image: shot_assets.texture.clone(),
             ..default()
         },
+        sound_effect(shot_assets.bang.clone()),
     )
 }
 
@@ -57,6 +58,8 @@ pub fn shot(
 pub struct ShotAssets {
     #[dependency]
     texture: Handle<Image>,
+    #[dependency]
+    pub bang: Handle<AudioSource>,
 }
 
 impl FromWorld for ShotAssets {
@@ -70,6 +73,7 @@ impl FromWorld for ShotAssets {
                     settings.sampler = ImageSampler::nearest();
                 },
             ),
+            bang: assets.load("audio/sound_effects/bass_two_note.mp3"),
         }
     }
 }

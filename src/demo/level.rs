@@ -5,7 +5,10 @@ use bevy::prelude::*;
 use crate::{
     asset_tracking::LoadResource,
     audio::music,
-    demo::player::{PlayerAssets, player},
+    demo::{
+        player::{PlayerAssets, player},
+        score::{self, combo_ui, score_ui},
+    },
     screens::Screen,
 };
 
@@ -48,6 +51,7 @@ pub fn spawn_level(
         children![
             player(400.0, &player_assets),
             EnemyController::default(),
+            score::score_controller(),
             (reticle(&reticle_assets), Name::new("Reticle"),),
             (
                 Name::new("Gameplay Music"),
@@ -55,4 +59,6 @@ pub fn spawn_level(
             )
         ],
     ));
+    commands.spawn(score_ui());
+    commands.spawn(combo_ui());
 }

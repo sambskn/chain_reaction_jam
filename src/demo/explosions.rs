@@ -3,7 +3,10 @@ use bevy::{
     prelude::*,
 };
 
-use crate::{AppSystems, PausableSystems, asset_tracking::LoadResource};
+use crate::{
+    AppSystems, PausableSystems, asset_tracking::LoadResource, audio::sound_effect,
+    demo::score::ScoreEvent,
+};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<Explosion>();
@@ -29,7 +32,6 @@ pub(super) fn plugin(app: &mut App) {
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct ExplosionController {
-    ///
     pub should_explode: bool,
     pub explosion_radius: f32,
     pub hitbox_radius: f32,
@@ -121,6 +123,7 @@ pub fn explosion(
             ..default()
         },
         initial_transform,
+        sound_effect(explosion_assets.boom.clone()),
     )
 }
 
@@ -196,6 +199,7 @@ fn update_explosions(
 fn check_for_explosion_chain(
     explosion_query: Query<(&Transform, &Explosion)>,
     mut can_explode_query: Query<(&Transform, &mut ExplosionController)>,
+    mut commands: Commands,
 ) {
     for (transform, explosion) in &explosion_query {
         for (potential_explosion_transform, mut potential_explosion_controller) in
@@ -207,6 +211,7 @@ fn check_for_explosion_chain(
                     .distance(potential_explosion_transform.translation);
                 if distance <= explosion.radius + potential_explosion_controller.hitbox_radius {
                     potential_explosion_controller.should_explode = true;
+                    commands.trigger(ScoreEvent { score: 1 });
                 }
             }
         }
