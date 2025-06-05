@@ -49,7 +49,7 @@ pub fn shot(
             image: shot_assets.texture.clone(),
             ..default()
         },
-        sound_effect(shot_assets.bang.clone()),
+        children![sound_effect(shot_assets.bang.clone()),],
     )
 }
 
@@ -73,7 +73,7 @@ impl FromWorld for ShotAssets {
                     settings.sampler = ImageSampler::nearest();
                 },
             ),
-            bang: assets.load("audio/sound_effects/bass_two_note.mp3"),
+            bang: assets.load("audio/sound_effects/shoot.mp3"),
         }
     }
 }

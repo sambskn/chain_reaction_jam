@@ -31,7 +31,7 @@ impl FromWorld for LevelAssets {
     fn from_world(world: &mut World) -> Self {
         let assets = world.resource::<AssetServer>();
         Self {
-            music: assets.load("audio/music/track_1.mp3"),
+            music: assets.load("audio/music/track_2.mp3"),
         }
     }
 }

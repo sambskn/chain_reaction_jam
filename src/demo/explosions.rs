@@ -112,6 +112,8 @@ pub fn explosion(
     initial_transform.translation = position.extend(1.0);
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(32), 11, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
+    let random_boom_index = (rand::random::<f32>() * 5.0).floor() as usize;
+    let boom_noise_handle = explosion_assets.booms[random_boom_index].clone();
     (
         Explosion::new(radius, position, lifespan),
         Sprite {
@@ -123,7 +125,7 @@ pub fn explosion(
             ..default()
         },
         initial_transform,
-        sound_effect(explosion_assets.boom.clone()),
+        sound_effect(boom_noise_handle),
     )
 }
 
@@ -133,7 +135,7 @@ pub struct ExplosionAssets {
     #[dependency]
     explosion: Handle<Image>,
     #[dependency]
-    pub boom: Handle<AudioSource>,
+    pub booms: Vec<Handle<AudioSource>>,
 }
 
 impl FromWorld for ExplosionAssets {
@@ -147,7 +149,13 @@ impl FromWorld for ExplosionAssets {
                     settings.sampler = ImageSampler::nearest();
                 },
             ),
-            boom: assets.load("audio/sound_effects/sh1.mp3"),
+            booms: vec![
+                assets.load("audio/sound_effects/boom1.mp3"),
+                assets.load("audio/sound_effects/boom2.mp3"),
+                assets.load("audio/sound_effects/boom3.mp3"),
+                assets.load("audio/sound_effects/boom4.mp3"),
+                assets.load("audio/sound_effects/boom5.mp3"),
+            ],
         }
     }
 }
