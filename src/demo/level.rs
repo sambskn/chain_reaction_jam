@@ -7,7 +7,7 @@ use crate::{
     audio::music,
     demo::{
         player::{PlayerAssets, player},
-        score::{self, combo_ui, score_ui},
+        score::{self, ScoreUIAssets, combo_ui, score_ui},
     },
     screens::Screen,
 };
@@ -44,6 +44,7 @@ pub fn spawn_level(
     player_assets: Res<PlayerAssets>,
     reticle_assets: Res<ReticleAssets>,
     bg_assets: Res<BGAssets>,
+    score_ui_assets: Res<ScoreUIAssets>,
 ) {
     commands.spawn((
         Name::new("Level"),
@@ -62,6 +63,6 @@ pub fn spawn_level(
             )
         ],
     ));
-    commands.spawn(score_ui());
-    commands.spawn(combo_ui());
+    commands.spawn(score_ui(&score_ui_assets));
+    commands.spawn(combo_ui(&score_ui_assets));
 }

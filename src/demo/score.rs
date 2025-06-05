@@ -1,9 +1,14 @@
-use bevy::prelude::*;
+use bevy::{
+    image::{ImageLoaderSettings, ImageSampler},
+    prelude::*,
+};
 
-use crate::{AppSystems, PausableSystems};
+use crate::{AppSystems, PausableSystems, asset_tracking::LoadResource};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<ScoreController>();
+    app.register_type::<ScoreUIAssets>();
+    app.load_resource::<ScoreUIAssets>();
 
     app.add_systems(
         Update,
@@ -14,19 +19,33 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-pub fn score_ui() -> impl Bundle {
+pub fn score_ui(score_ui_assets: &ScoreUIAssets) -> impl Bundle {
+    let slicer = TextureSlicer {
+        border: BorderRect::all(5.0),
+        center_scale_mode: SliceScaleMode::Stretch,
+        sides_scale_mode: SliceScaleMode::Stretch,
+        max_corner_scale: 1.0,
+    };
     (
         Node {
             position_type: PositionType::Absolute,
             display: Display::Flex,
             flex_direction: FlexDirection::Column,
-            top: Val::Px(10.0),
+            bottom: Val::Px(5.0),
             left: Val::Px(10.0),
+            padding: UiRect::all(Val::Px(20.0)),
             ..default()
         },
+        ImageNode {
+            image: score_ui_assets.frame.clone(),
+            image_mode: NodeImageMode::Sliced(slicer),
+            ..default()
+        },
+        GlobalZIndex(-1),
+        Transform::from_translation(Vec2::ZERO.extend(-9.0)),
         children![
-            (Text::new("Score"), TextFont::from_font_size(24.0),),
-            (ScoreVal, Text::new("0"), TextFont::from_font_size(48.0),)
+            (Text::new("Score"), TextFont::from_font_size(18.0),),
+            (ScoreVal, Text::new("0"), TextFont::from_font_size(24.0),)
         ],
         Observer::new(
             |trigger: Trigger<NewScore>, mut score_text: Query<&mut Text, With<ScoreVal>>| {
@@ -38,20 +57,33 @@ pub fn score_ui() -> impl Bundle {
     )
 }
 
-pub fn combo_ui() -> impl Bundle {
+pub fn combo_ui(score_ui_assets: &ScoreUIAssets) -> impl Bundle {
+    let slicer = TextureSlicer {
+        border: BorderRect::all(5.0),
+        center_scale_mode: SliceScaleMode::Stretch,
+        sides_scale_mode: SliceScaleMode::Stretch,
+        max_corner_scale: 1.0,
+    };
+
     (
         Node {
             position_type: PositionType::Absolute,
             display: Display::Flex,
             flex_direction: FlexDirection::Column,
             align_items: AlignItems::End,
-            top: Val::Px(10.0),
+            bottom: Val::Px(5.0),
             right: Val::Px(10.0),
+            padding: UiRect::all(Val::Px(20.0)),
+            ..default()
+        },
+        ImageNode {
+            image: score_ui_assets.frame.clone(),
+            image_mode: NodeImageMode::Sliced(slicer),
             ..default()
         },
         children![
-            (Text::new("combo"), TextFont::from_font_size(24.0),),
-            (ComboVal, Text::new("1x"), TextFont::from_font_size(48.0),)
+            (Text::new("combo"), TextFont::from_font_size(18.0),),
+            (ComboVal, Text::new("1x"), TextFont::from_font_size(24.0),)
         ],
         Observer::new(
             |trigger: Trigger<NewScore>, mut combo_text: Query<&mut Text, With<ComboVal>>| {
@@ -136,4 +168,26 @@ pub struct ScoreEvent {
 pub struct NewScore {
     pub combo: u32,
     pub score: u32,
+}
+
+#[derive(Resource, Asset, Clone, Reflect)]
+#[reflect(Resource)]
+pub struct ScoreUIAssets {
+    #[dependency]
+    frame: Handle<Image>,
+}
+
+impl FromWorld for ScoreUIAssets {
+    fn from_world(world: &mut World) -> Self {
+        let assets = world.resource::<AssetServer>();
+        Self {
+            frame: assets.load_with_settings(
+                "images/box_frame.png",
+                |settings: &mut ImageLoaderSettings| {
+                    // Use `nearest` image sampling to preserve pixel art style.
+                    settings.sampler = ImageSampler::nearest();
+                },
+            ),
+        }
+    }
 }
