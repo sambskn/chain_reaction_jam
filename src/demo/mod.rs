@@ -5,6 +5,7 @@
 
 use bevy::prelude::*;
 
+mod background;
 mod enemies;
 mod explosions;
 pub mod level;
@@ -26,5 +27,6 @@ pub(super) fn plugin(app: &mut App) {
         enemies::plugin,
         reticle::plugin,
         score::plugin,
+        background::plugin,
     ));
 }

@@ -15,6 +15,7 @@ mod theme;
 use bevy::{
     asset::{AssetMetaCheck, load_internal_binary_asset},
     prelude::*,
+    window::WindowResolution,
 };
 
 fn main() -> AppExit {
@@ -39,6 +40,8 @@ impl Plugin for AppPlugin {
                     primary_window: Window {
                         title: "Chain Reaction Jam".to_string(),
                         fit_canvas_to_parent: true,
+                        resizable: false,
+                        resolution: WindowResolution::new(800., 640.),
                         ..default()
                     }
                     .into(),
