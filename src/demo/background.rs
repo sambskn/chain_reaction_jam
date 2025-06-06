@@ -32,7 +32,7 @@ pub fn bg_layer_1(bg_assets: &BGAssets) -> impl Bundle {
                 tile_y: true,
                 stretch_value: 8.0,
             },
-            custom_size: Some(Vec2::splat(1000.0)),
+            custom_size: Some(Vec2::splat(1200.0)),
             ..default()
         },
         Transform::from_translation(Vec2::ZERO.extend(BG_LAYER_1_Z)),
@@ -44,11 +44,46 @@ pub fn bg_layer_1(bg_assets: &BGAssets) -> impl Bundle {
     )
 }
 
+const BG_LAYER_2_Z: f32 = -9.0;
+
+pub fn bg_layer_2(bg_assets: &BGAssets) -> impl Bundle {
+    (
+        Sprite {
+            image: bg_assets.play_field_background.clone(),
+            ..default()
+        },
+        Transform::from_translation(Vec2::ZERO.extend(BG_LAYER_2_Z)),
+    )
+}
+
+const BG_LAYER_3_Z: f32 = -8.0;
+
+pub fn bg_layer_3(bg_assets: &BGAssets) -> impl Bundle {
+    (
+        Sprite {
+            image: bg_assets.play_field_frame.clone(),
+            image_mode: SpriteImageMode::Sliced(TextureSlicer {
+                border: BorderRect::all(12.0),
+                center_scale_mode: SliceScaleMode::Stretch,
+                sides_scale_mode: SliceScaleMode::Stretch,
+                max_corner_scale: 4.0,
+            }),
+            custom_size: Some(Vec2 { x: 760.0, y: 600.0 }),
+            ..default()
+        },
+        Transform::from_translation(Vec2::ZERO.extend(BG_LAYER_3_Z)),
+    )
+}
+
 #[derive(Resource, Asset, Clone, Reflect)]
 #[reflect(Resource)]
 pub struct BGAssets {
     #[dependency]
     texture: Handle<Image>,
+    #[dependency]
+    play_field_frame: Handle<Image>,
+    #[dependency]
+    play_field_background: Handle<Image>,
 }
 
 impl FromWorld for BGAssets {
@@ -57,6 +92,20 @@ impl FromWorld for BGAssets {
         Self {
             texture: assets.load_with_settings(
                 "images/tiled_bg.png",
+                |settings: &mut ImageLoaderSettings| {
+                    // Use `nearest` image sampling to preserve pixel art style.
+                    settings.sampler = ImageSampler::nearest();
+                },
+            ),
+            play_field_frame: assets.load_with_settings(
+                "images/game_frame_1.png",
+                |settings: &mut ImageLoaderSettings| {
+                    // Use `nearest` image sampling to preserve pixel art style.
+                    settings.sampler = ImageSampler::nearest();
+                },
+            ),
+            play_field_background: assets.load_with_settings(
+                "images/temp_bg_field.png",
                 |settings: &mut ImageLoaderSettings| {
                     // Use `nearest` image sampling to preserve pixel art style.
                     settings.sampler = ImageSampler::nearest();

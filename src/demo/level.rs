@@ -12,7 +12,7 @@ use crate::{
     screens::Screen,
 };
 
-use super::background::{BGAssets, bg_layer_1};
+use super::background::{BGAssets, bg_layer_1, bg_layer_2, bg_layer_3};
 use super::enemies::EnemyController;
 use super::reticle::{ReticleAssets, reticle};
 
@@ -57,6 +57,8 @@ pub fn spawn_level(
             score::score_controller(),
             (reticle(&reticle_assets), Name::new("Reticle"),),
             bg_layer_1(&bg_assets),
+            bg_layer_2(&bg_assets),
+            bg_layer_3(&bg_assets),
             (
                 Name::new("Gameplay Music"),
                 music(level_assets.music.clone())
