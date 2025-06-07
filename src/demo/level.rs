@@ -13,6 +13,7 @@ use crate::{
 };
 
 use super::background::{BGAssets, bg_layer_1, bg_layer_2, bg_layer_3};
+use super::buildings::{BuildingAssets, building};
 use super::enemies::EnemyController;
 use super::reticle::{ReticleAssets, reticle};
 
@@ -45,6 +46,8 @@ pub fn spawn_level(
     reticle_assets: Res<ReticleAssets>,
     bg_assets: Res<BGAssets>,
     score_ui_assets: Res<ScoreUIAssets>,
+    building_assets: Res<BuildingAssets>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     commands.spawn((
         Name::new("Level"),
@@ -62,7 +65,11 @@ pub fn spawn_level(
             (
                 Name::new("Gameplay Music"),
                 music(level_assets.music.clone())
-            )
+            ),
+            building(&building_assets, &mut texture_atlas_layouts),
+            building(&building_assets, &mut texture_atlas_layouts),
+            building(&building_assets, &mut texture_atlas_layouts),
+            building(&building_assets, &mut texture_atlas_layouts),
         ],
     ));
     commands.spawn(score_ui(&score_ui_assets));

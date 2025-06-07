@@ -84,7 +84,7 @@ impl Default for ExplosionAnimation {
 #[derive(Component, Reflect)]
 #[reflect(Component)]
 pub struct Explosion {
-    radius: f32,
+    pub radius: f32,
     center: Vec2,
     explosion_max_life_span: f32,
     explosion_life_span_remaining: f32,
