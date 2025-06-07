@@ -53,7 +53,7 @@ impl Default for MovementController {
     }
 }
 
-const MAX_X: f32 = 350.0;
+pub const MAX_X: f32 = 330.0;
 
 fn apply_movement(
     time: Res<Time>,
