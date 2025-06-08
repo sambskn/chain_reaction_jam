@@ -3,12 +3,14 @@ use bevy::{
     prelude::*,
 };
 
-use crate::{AppSystems, PausableSystems, asset_tracking::LoadResource};
+use crate::{AppSystems, PausableSystems, asset_tracking::LoadResource, screens::Screen};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<ScoreController>();
     app.register_type::<ScoreUIAssets>();
     app.load_resource::<ScoreUIAssets>();
+    
+    app.init_resource::<Score>();
 
     app.add_systems(
         Update,
@@ -17,6 +19,15 @@ pub(super) fn plugin(app: &mut App) {
             .in_set(AppSystems::TickTimers)
             .in_set(PausableSystems),
     );
+}
+
+#[derive(Resource)]
+pub struct Score(pub u32);
+
+impl FromWorld for Score {
+    fn from_world(_world: &mut World) -> Self {
+        Self(0)
+    }
 }
 
 pub fn score_ui(score_ui_assets: &ScoreUIAssets) -> impl Bundle {
@@ -48,12 +59,14 @@ pub fn score_ui(score_ui_assets: &ScoreUIAssets) -> impl Bundle {
             (ScoreVal, Text::new("0"), TextFont::from_font_size(24.0),)
         ],
         Observer::new(
-            |trigger: Trigger<NewScore>, mut score_text: Query<&mut Text, With<ScoreVal>>| {
+            |trigger: Trigger<NewScore>, mut score_text: Query<&mut Text, With<ScoreVal>>, mut score_res: ResMut<Score>| {
                 for mut text in score_text.iter_mut() {
                     text.0 = format!("{}", trigger.score);
                 }
+                score_res.0 = trigger.score;
             },
         ),
+        StateScoped(Screen::Gameplay),
     )
 }
 
@@ -92,6 +105,7 @@ pub fn combo_ui(score_ui_assets: &ScoreUIAssets) -> impl Bundle {
                 }
             },
         ),
+        StateScoped(Screen::Gameplay),
     )
 }
 

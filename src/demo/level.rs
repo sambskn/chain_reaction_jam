@@ -67,9 +67,6 @@ pub fn spawn_level(
                 music(level_assets.music.clone())
             ),
             building(&building_assets, &mut texture_atlas_layouts),
-            building(&building_assets, &mut texture_atlas_layouts),
-            building(&building_assets, &mut texture_atlas_layouts),
-            building(&building_assets, &mut texture_atlas_layouts),
         ],
     ));
     commands.spawn(score_ui(&score_ui_assets));

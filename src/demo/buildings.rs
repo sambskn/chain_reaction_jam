@@ -5,7 +5,7 @@ use bevy::{
 
 use super::explosions::Explosion;
 use super::movement::MAX_X;
-use crate::{AppSystems, PausableSystems, asset_tracking::LoadResource};
+use crate::{AppSystems, PausableSystems, asset_tracking::LoadResource, screens::Screen};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<Building>();
@@ -15,12 +15,18 @@ pub(super) fn plugin(app: &mut App) {
 
     app.add_systems(
         Update,
-        (check_for_explosion_damage, update_building_sprite)
+        (
+            check_for_explosion_damage,
+            update_building_sprite,
+            check_for_game_over.run_if(in_state(Screen::Gameplay)),
+        )
             .chain()
             .in_set(AppSystems::Update)
             .in_set(PausableSystems),
     );
 }
+
+// TODO: make buildings move so they don't overlap one another??
 
 pub fn building(
     building_assets: &BuildingAssets,
@@ -115,5 +121,15 @@ fn check_for_explosion_damage(
                 building.last_damage_time = time.elapsed_secs();
             }
         }
+    }
+}
+
+fn check_for_game_over(
+    building_query: Query<&Building>,
+    mut next_screen: ResMut<NextState<Screen>>,
+) {
+    let building_count = building_query.iter().count();
+    if building_count == 0 {
+        next_screen.set(Screen::GameOver);
     }
 }

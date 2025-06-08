@@ -7,7 +7,10 @@ use super::{
     explosions::{ExplosionAssets, ExplosionController},
     movement::MovementController,
 };
-use crate::{AppSystems, PausableSystems, asset_tracking::LoadResource, demo::movement::MAX_X};
+use crate::{
+    AppSystems, PausableSystems, asset_tracking::LoadResource, demo::movement::MAX_X,
+    screens::Screen,
+};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<Enemy>();
@@ -87,6 +90,7 @@ pub fn enemy(speed: f32, enemy_assets: &EnemyAssets) -> impl Bundle {
         },
         MovementController::default(),
         ExplosionController::new(false, 32.0, 32.0, 1.5),
+        StateScoped(Screen::Gameplay),
     )
 }
 

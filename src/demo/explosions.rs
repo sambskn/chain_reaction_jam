@@ -5,7 +5,7 @@ use bevy::{
 
 use crate::{
     AppSystems, PausableSystems, asset_tracking::LoadResource, audio::sound_effect,
-    demo::score::ScoreEvent,
+    demo::score::ScoreEvent, screens::Screen,
 };
 
 pub(super) fn plugin(app: &mut App) {
@@ -125,7 +125,8 @@ pub fn explosion(
             ..default()
         },
         initial_transform,
-        sound_effect(boom_noise_handle),
+        StateScoped(Screen::Gameplay),
+        children![sound_effect(boom_noise_handle)],
     )
 }
 

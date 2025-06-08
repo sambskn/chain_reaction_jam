@@ -13,7 +13,7 @@ pub mod level;
 mod movement;
 pub mod player;
 mod reticle;
-mod score;
+pub mod score;
 mod shooting;
 mod shot;
 
