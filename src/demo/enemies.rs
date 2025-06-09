@@ -5,6 +5,7 @@ use bevy::{
 
 use super::{
     explosions::{ExplosionAssets, ExplosionController},
+    floating_text::NewText,
     movement::MovementController,
 };
 use crate::{
@@ -180,7 +181,7 @@ impl Default for EnemyController {
     }
 }
 
-const LEVEL_TIME: f32 = 5.0;
+const LEVEL_TIME: f32 = 10.0;
 const NUM_ENEMIES_INCREMENT_PER_LEVEL: usize = 5;
 const ENEMY_SPEED_INCREMENT_PER_LEVEL: f32 = 20.0;
 const MIN_ENEMY_SPAWN_INTERVAL: f32 = 0.2;
@@ -191,12 +192,14 @@ fn update_enemy_controller(
     enemy_assets: Res<EnemyAssets>,
     mut commands: Commands,
     time: Res<Time>,
+    mut ev_new_text: EventWriter<NewText>,
 ) {
     let enemy_count = enemy_query.iter().count();
     for mut controller in controller_query.iter_mut() {
         controller.game_time += time.delta_secs();
         if controller.game_time >= LEVEL_TIME {
             controller.level += 1;
+            ev_new_text.write(NewText(format!("level {}", controller.level), 0.0, 0.0));
             controller.max_num_enemies += NUM_ENEMIES_INCREMENT_PER_LEVEL;
             controller.enemy_speed += ENEMY_SPEED_INCREMENT_PER_LEVEL;
             controller.game_time = 0.0;

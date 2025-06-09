@@ -34,12 +34,14 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
+const PLAYER_Y: f32 = -220.0;
+
 /// The player character.
 pub fn player(max_speed: f32, player_assets: &PlayerAssets) -> impl Bundle {
     let mut initial_transform = Transform::from_scale(Vec2::splat(2.0).extend(1.0));
     initial_transform.translation = Vec3 {
         x: 0.0,
-        y: -200.0,
+        y: PLAYER_Y,
         z: 0.0,
     };
     (
@@ -62,7 +64,7 @@ pub fn player(max_speed: f32, player_assets: &PlayerAssets) -> impl Bundle {
 #[reflect(Component)]
 struct Player;
 
-const PLAYER_RETICLE_Y_SPEED: f32 = 8.0;
+const PLAYER_RETICLE_Y_SPEED: f32 = 10.0;
 
 fn record_player_directional_input(
     input: Res<ButtonInput<KeyCode>>,

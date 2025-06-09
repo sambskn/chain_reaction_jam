@@ -8,6 +8,7 @@ use bevy::prelude::*;
 mod buildings;
 mod enemies;
 mod explosions;
+mod floating_text;
 pub mod level;
 mod movement;
 pub mod player;
@@ -19,6 +20,7 @@ mod shot;
 pub(super) fn plugin(app: &mut App) {
     app.add_plugins((
         level::plugin,
+        floating_text::plugin,
         movement::plugin,
         player::plugin,
         shot::plugin,

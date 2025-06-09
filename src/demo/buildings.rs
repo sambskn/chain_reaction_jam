@@ -4,6 +4,7 @@ use bevy::{
 };
 
 use super::explosions::Explosion;
+use super::floating_text::NewText;
 use super::movement::MAX_X;
 use crate::{AppSystems, PausableSystems, asset_tracking::LoadResource, screens::Screen};
 use rand::Rng;
@@ -84,7 +85,7 @@ pub fn building(
             texture_atlas: Some(TextureAtlas { layout, index: 0 }),
             ..default()
         },
-        Transform::from_xyz(x, -175.0, -1.0).with_scale(Vec3::splat(2.0)),
+        Transform::from_xyz(x, -160.0, -1.0).with_scale(Vec3::splat(2.0)),
         Building {
             health: 3,
             last_damage_time: 0.0,
@@ -149,6 +150,7 @@ fn check_for_explosion_damage(
     explosion_query: Query<(&Transform, &Explosion)>,
     mut building_query: Query<(&Transform, &mut Building)>,
     time: Res<Time>,
+    mut ev_new_text: EventWriter<NewText>,
 ) {
     for (explosion_transform, explosion) in &explosion_query {
         for (buidling_transform, mut building) in &mut building_query {
@@ -158,11 +160,34 @@ fn check_for_explosion_damage(
             let enough_time_elapsed =
                 (time.elapsed_secs() - building.last_damage_time) > TIME_BETWEEN_DAMAGE;
             if (dist_to_explosion - BUILDING_RADIUS) < explosion.radius && enough_time_elapsed {
+                let random_text_offset = Vec2::new(
+                    rand::random::<f32>() * 10.0 - 5.0,
+                    rand::random::<f32>() * 10.0 - 5.0,
+                );
+                ev_new_text.write(NewText(
+                    pick_random_ouch_string(),
+                    explosion_transform.translation.x + random_text_offset.x,
+                    explosion_transform.translation.y + random_text_offset.y,
+                ));
                 building.health -= 1;
                 building.last_damage_time = time.elapsed_secs();
             }
         }
     }
+}
+
+fn pick_random_ouch_string() -> String {
+    let ouch_strings = [
+        "ouch",
+        "ouchie",
+        "ciao papi",
+        "they got me",
+        "help me",
+        "why father",
+        "not like this",
+        "oww",
+    ];
+    ouch_strings[rand::random::<usize>() % ouch_strings.len()].to_string()
 }
 
 fn check_for_game_over(

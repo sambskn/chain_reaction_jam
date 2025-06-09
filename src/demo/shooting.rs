@@ -32,8 +32,8 @@ impl Default for ShootingController {
         Self {
             intent_to_fire: false,
             last_shot_time: 0.0,
-            reload_time: 0.5,
-            shot_speed: 640.0,
+            reload_time: 0.4,
+            shot_speed: 680.0,
             target_offset: Vec2 { x: 0.0, y: 200.0 },
         }
     }

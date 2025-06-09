@@ -55,7 +55,7 @@ pub fn spawn_level(
         Visibility::default(),
         StateScoped(Screen::Gameplay),
         children![
-            player(400.0, &player_assets),
+            player(500.0, &player_assets),
             EnemyController::default(),
             score::score_controller(),
             (reticle(&reticle_assets), Name::new("Reticle"),),
