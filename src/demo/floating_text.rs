@@ -23,7 +23,7 @@ pub struct NewText(pub String, pub f32, pub f32); // text, x, y
 pub struct FloatingText(pub f32); // text, lifetime
 
 const FLOATING_TEXT_FONT_SIZE: f32 = 16.0;
-const FLOATING_TEXT_MOVE_SPEED: f32 = 1.5;
+const FLOATING_TEXT_MOVE_SPEED: f32 = 3.0;
 const FLOATING_TEXT_Z: f32 = 6.0;
 const FLOATING_TEXT_LIFETIME_MS: f32 = 2000.0;
 

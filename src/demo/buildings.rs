@@ -161,8 +161,8 @@ fn check_for_explosion_damage(
                 (time.elapsed_secs() - building.last_damage_time) > TIME_BETWEEN_DAMAGE;
             if (dist_to_explosion - BUILDING_RADIUS) < explosion.radius && enough_time_elapsed {
                 let random_text_offset = Vec2::new(
-                    rand::random::<f32>() * 10.0 - 5.0,
-                    rand::random::<f32>() * 10.0 - 5.0,
+                    rand::random::<f32>() * 60.0 - 30.0,
+                    rand::random::<f32>() * 60.0 - 30.0,
                 );
                 ev_new_text.write(NewText(
                     pick_random_ouch_string(),
