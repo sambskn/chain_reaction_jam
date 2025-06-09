@@ -5,6 +5,7 @@ use bevy::prelude::*;
 use crate::{
     asset_tracking::LoadResource,
     audio::music,
+    background::{BGAssets, bg_layer_1, bg_layer_2, bg_layer_3},
     demo::{
         player::{PlayerAssets, player},
         score::{self, ScoreUIAssets, combo_ui, score_ui},
@@ -12,7 +13,6 @@ use crate::{
     screens::Screen,
 };
 
-use super::background::{BGAssets, bg_layer_1, bg_layer_2, bg_layer_3};
 use super::buildings::{BuildingAssets, spawn_buildings};
 use super::enemies::EnemyController;
 use super::reticle::{ReticleAssets, reticle};

@@ -5,6 +5,7 @@
 
 mod asset_tracking;
 mod audio;
+mod background;
 mod demo;
 #[cfg(feature = "dev")]
 mod dev_tools;
@@ -14,6 +15,7 @@ mod theme;
 
 use bevy::{
     asset::{AssetMetaCheck, load_internal_binary_asset},
+    audio::Volume,
     prelude::*,
     window::WindowResolution,
 };
@@ -38,7 +40,7 @@ impl Plugin for AppPlugin {
                 })
                 .set(WindowPlugin {
                     primary_window: Window {
-                        title: "Chain Reaction Jam".to_string(),
+                        title: "chainvasion".to_string(),
                         fit_canvas_to_parent: true,
                         resizable: false,
                         resolution: WindowResolution::new(800., 640.),
@@ -67,6 +69,7 @@ impl Plugin for AppPlugin {
             menus::plugin,
             screens::plugin,
             theme::plugin,
+            background::plugin,
         ));
 
         // Order new `AppSystems` variants by adding them here:
@@ -83,6 +86,9 @@ impl Plugin for AppPlugin {
         // Set up the `Pause` state.
         app.init_state::<Pause>();
         app.configure_sets(Update, PausableSystems.run_if(in_state(Pause(false))));
+
+        // Set volume to 50%
+        app.add_systems(Startup, set_volume);
 
         // Spawn the main camera.
         app.add_systems(Startup, spawn_camera);
@@ -113,4 +119,9 @@ struct PausableSystems;
 
 fn spawn_camera(mut commands: Commands) {
     commands.spawn((Name::new("Camera"), Camera2d));
+}
+
+fn set_volume(mut global_volume: ResMut<GlobalVolume>) {
+    // setting to 0.5 by default
+    global_volume.volume = Volume::Linear(0.5);
 }

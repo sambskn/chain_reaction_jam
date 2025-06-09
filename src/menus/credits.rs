@@ -4,7 +4,13 @@ use bevy::{
     ecs::spawn::SpawnIter, input::common_conditions::input_just_pressed, prelude::*, ui::Val::*,
 };
 
-use crate::{asset_tracking::LoadResource, audio::music, menus::Menu, theme::prelude::*};
+use crate::{
+    asset_tracking::LoadResource,
+    audio::music,
+    background::{BGAssets, bg_layer_1},
+    menus::Menu,
+    theme::prelude::*,
+};
 
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Menu::Credits), spawn_credits_menu);
@@ -18,7 +24,7 @@ pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Menu::Credits), start_credits_music);
 }
 
-fn spawn_credits_menu(mut commands: Commands) {
+fn spawn_credits_menu(mut commands: Commands, bg_assets: Res<BGAssets>) {
     commands.spawn((
         widget::ui_root("Credits Menu"),
         GlobalZIndex(2),
@@ -31,10 +37,11 @@ fn spawn_credits_menu(mut commands: Commands) {
             widget::button("Back", go_back_on_click),
         ],
     ));
+    commands.spawn((bg_layer_1(&bg_assets), StateScoped(Menu::Credits)));
 }
 
 fn created_by() -> impl Bundle {
-    grid(vec![["Sam Baskin", "game stuff"]])
+    grid(vec![["Sam Baskin", "- ya boy ;)"]])
 }
 
 fn assets() -> impl Bundle {
