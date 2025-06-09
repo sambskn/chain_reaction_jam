@@ -161,6 +161,9 @@ impl FromWorld for ExplosionAssets {
     }
 }
 
+const MAX_Y: f32 = 250.0;
+const MIN_Y: f32 = -250.0;
+
 fn create_explosions(
     mut commands: Commands,
     query: Query<(&Transform, &ExplosionController, Entity)>,
@@ -169,7 +172,8 @@ fn create_explosions(
 ) {
     // loop through all entities with ExplosionController component & a Transform
     for (transform, controller, entity) in query.iter() {
-        if controller.should_explode {
+        let is_onscreen = transform.translation.y > MIN_Y && transform.translation.y < MAX_Y;
+        if controller.should_explode && is_onscreen {
             // create explosion
             commands.spawn(explosion(
                 transform.translation.truncate(),

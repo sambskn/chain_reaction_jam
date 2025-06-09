@@ -89,7 +89,7 @@ pub fn enemy(speed: f32, enemy_assets: &EnemyAssets) -> impl Bundle {
             ..default()
         },
         MovementController::default(),
-        ExplosionController::new(false, 32.0, 32.0, 1.5),
+        ExplosionController::new(false, 32.0, 32.0, 0.5),
         StateScoped(Screen::Gameplay),
     )
 }
@@ -117,7 +117,7 @@ impl FromWorld for EnemyAssets {
 }
 
 const SLOWDOWN_DISTANCE: f32 = 200.0;
-const EXPLOSION_DISTANCE: f32 = 10.0;
+const EXPLOSION_DISTANCE: f32 = 20.0;
 
 fn update_enemy_movement_intent(
     mut query: Query<(
@@ -162,24 +162,50 @@ fn update_enemy_movement_intent(
 #[reflect(Component)]
 pub struct EnemyController {
     pub max_num_enemies: usize,
+    pub enemy_speed: f32,
+    pub game_time: f32,
+    pub level: usize,
+    pub last_enemy_spawn_time: f32,
 }
 
 impl Default for EnemyController {
     fn default() -> Self {
-        Self { max_num_enemies: 5 }
+        Self {
+            max_num_enemies: 5,
+            enemy_speed: 75.0,
+            game_time: 0.0,
+            level: 1,
+            last_enemy_spawn_time: 0.0,
+        }
     }
 }
 
+const LEVEL_TIME: f32 = 5.0;
+const NUM_ENEMIES_INCREMENT_PER_LEVEL: usize = 5;
+const ENEMY_SPEED_INCREMENT_PER_LEVEL: f32 = 20.0;
+const MIN_ENEMY_SPAWN_INTERVAL: f32 = 0.2;
+
 fn update_enemy_controller(
     enemy_query: Query<&Enemy>,
-    controller_query: Query<&EnemyController>,
+    mut controller_query: Query<&mut EnemyController>,
     enemy_assets: Res<EnemyAssets>,
     mut commands: Commands,
+    time: Res<Time>,
 ) {
     let enemy_count = enemy_query.iter().count();
-    for controller in controller_query.iter() {
-        if enemy_count < controller.max_num_enemies {
-            commands.spawn(enemy(75.0, &enemy_assets));
+    for mut controller in controller_query.iter_mut() {
+        controller.game_time += time.delta_secs();
+        if controller.game_time >= LEVEL_TIME {
+            controller.level += 1;
+            controller.max_num_enemies += NUM_ENEMIES_INCREMENT_PER_LEVEL;
+            controller.enemy_speed += ENEMY_SPEED_INCREMENT_PER_LEVEL;
+            controller.game_time = 0.0;
+        }
+        let can_spawn_now =
+            time.elapsed_secs() - controller.last_enemy_spawn_time >= MIN_ENEMY_SPAWN_INTERVAL;
+        if enemy_count < controller.max_num_enemies && can_spawn_now {
+            commands.spawn(enemy(controller.enemy_speed, &enemy_assets));
+            controller.last_enemy_spawn_time = time.elapsed_secs();
         }
     }
 }

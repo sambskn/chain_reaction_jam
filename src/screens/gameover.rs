@@ -6,13 +6,21 @@ use crate::screens::Screen;
 pub(super) fn plugin(app: &mut App) {
     app.add_systems(OnEnter(Screen::GameOver), spawn_game_over);
 
-    // // Toggle pause on key press.
+    app.add_systems(
+        Update,
+        update_game_over_timer.run_if(in_state(Screen::GameOver)),
+    );
+    // Toggle pause on key press.
     app.add_systems(
         Update,
         ((go_to_main_menu)
             .run_if(in_state(Screen::GameOver).and(input_just_pressed(KeyCode::Space))),),
     );
 }
+
+#[derive(Component, Debug, Clone, Copy, PartialEq, Default, Reflect)]
+#[reflect(Component)]
+struct GameOverTimer(pub f32);
 
 fn spawn_game_over(mut commands: Commands, current_score: Res<Score>) {
     commands.spawn((
@@ -27,6 +35,7 @@ fn spawn_game_over(mut commands: Commands, current_score: Res<Score>) {
             align_items: AlignItems::Center,
             ..default()
         },
+        GameOverTimer(0.0),
         children![
             (
                 Node {
@@ -56,7 +65,20 @@ fn spawn_game_over(mut commands: Commands, current_score: Res<Score>) {
     ));
 }
 
-fn go_to_main_menu(mut next_screen: ResMut<NextState<Screen>>, mut score_res: ResMut<Score>) {
-    next_screen.set(Screen::Title);
-    score_res.0 = 0;
+fn update_game_over_timer(mut query: Query<&mut GameOverTimer>, time: Res<Time>) {
+    for mut timer in query.iter_mut() {
+        timer.0 += time.delta_secs();
+    }
+}
+
+fn go_to_main_menu(
+    mut next_screen: ResMut<NextState<Screen>>,
+    query: Query<&GameOverTimer>,
+    mut score_res: ResMut<Score>,
+) {
+    let game_over_timer = query.single().unwrap();
+    if game_over_timer.0 >= 2.0 {
+        next_screen.set(Screen::Title);
+        score_res.0 = 0;
+    }
 }

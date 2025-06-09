@@ -9,7 +9,7 @@ pub(super) fn plugin(app: &mut App) {
     app.register_type::<ScoreController>();
     app.register_type::<ScoreUIAssets>();
     app.load_resource::<ScoreUIAssets>();
-    
+
     app.init_resource::<Score>();
 
     app.add_systems(
@@ -59,7 +59,9 @@ pub fn score_ui(score_ui_assets: &ScoreUIAssets) -> impl Bundle {
             (ScoreVal, Text::new("0"), TextFont::from_font_size(24.0),)
         ],
         Observer::new(
-            |trigger: Trigger<NewScore>, mut score_text: Query<&mut Text, With<ScoreVal>>, mut score_res: ResMut<Score>| {
+            |trigger: Trigger<NewScore>,
+             mut score_text: Query<&mut Text, With<ScoreVal>>,
+             mut score_res: ResMut<Score>| {
                 for mut text in score_text.iter_mut() {
                     text.0 = format!("{}", trigger.score);
                 }

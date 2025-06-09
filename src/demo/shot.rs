@@ -4,7 +4,9 @@ use bevy::{
 };
 
 use super::explosions::{ExplosionAssets, explosion};
-use crate::{AppSystems, PausableSystems, asset_tracking::LoadResource, audio::sound_effect};
+use crate::{
+    AppSystems, PausableSystems, asset_tracking::LoadResource, audio::sound_effect, screens::Screen,
+};
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<Shot>();
@@ -49,6 +51,7 @@ pub fn shot(
             image: shot_assets.texture.clone(),
             ..default()
         },
+        StateScoped(Screen::Gameplay),
         children![sound_effect(shot_assets.bang.clone()),],
     )
 }

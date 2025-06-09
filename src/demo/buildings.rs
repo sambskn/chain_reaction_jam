@@ -6,6 +6,7 @@ use bevy::{
 use super::explosions::Explosion;
 use super::movement::MAX_X;
 use crate::{AppSystems, PausableSystems, asset_tracking::LoadResource, screens::Screen};
+use rand::Rng;
 
 pub(super) fn plugin(app: &mut App) {
     app.register_type::<Building>();
@@ -26,29 +27,69 @@ pub(super) fn plugin(app: &mut App) {
     );
 }
 
-// TODO: make buildings move so they don't overlap one another??
+const MIN_BUILDING_SEPARATION: f32 = 100.0;
+const INITIAL_BUILDING_COUNT: usize = 5;
 
-pub fn building(
+fn generate_positions() -> Vec<f32> {
+    let mut rng = rand::thread_rng();
+    let mut positions = Vec::new();
+    let max_attempts = 10_000;
+
+    for _ in 0..max_attempts {
+        if positions.len() == INITIAL_BUILDING_COUNT {
+            break;
+        }
+
+        let candidate = rng.gen_range(-MAX_X..=MAX_X);
+
+        if positions
+            .iter()
+            .all(|&p| ((p - candidate) as f32).abs() >= MIN_BUILDING_SEPARATION)
+        {
+            positions.push(candidate);
+        }
+    }
+
+    if positions.len() < INITIAL_BUILDING_COUNT {
+        panic!("Could not generate enough positions with required separation");
+    }
+
+    positions
+}
+
+pub fn spawn_buildings(
     building_assets: &BuildingAssets,
     texture_atlas_layouts: &mut Assets<TextureAtlasLayout>,
-) -> impl Bundle {
+    commands: &mut Commands,
+) {
     let layout = TextureAtlasLayout::from_grid(UVec2 { x: 32, y: 64 }, 3, 1, None, None);
     let texture_atlas = texture_atlas_layouts.add(layout);
-    let x_val = rand::random::<f32>() * MAX_X * 2.0 - MAX_X;
+    // get INITIAL_BUILDING_COUNT randomly spaced values between -MAX_X and MAX_X
+    // ensure all x vals are at least MIN_BUILDING_SEPARATION apart
+    let x_vals = generate_positions();
+
+    for x in x_vals {
+        commands.spawn(building(x, building_assets, texture_atlas.clone()));
+    }
+}
+
+pub fn building(
+    x: f32,
+    building_assets: &BuildingAssets,
+    layout: Handle<TextureAtlasLayout>,
+) -> impl Bundle {
     (
         Sprite {
             image: building_assets.texture.clone(),
-            texture_atlas: Some(TextureAtlas {
-                layout: texture_atlas,
-                index: 0,
-            }),
+            texture_atlas: Some(TextureAtlas { layout, index: 0 }),
             ..default()
         },
-        Transform::from_xyz(x_val, -175.0, -1.0).with_scale(Vec3::splat(2.0)),
+        Transform::from_xyz(x, -175.0, -1.0).with_scale(Vec3::splat(2.0)),
         Building {
             health: 3,
             last_damage_time: 0.0,
         },
+        StateScoped(Screen::Gameplay),
     )
 }
 
